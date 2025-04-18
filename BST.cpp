@@ -19,6 +19,7 @@ BST::~BST() {
   freeTree(root);
 }
 
+// inserts a new node into the tree
 BST::Node * BST::newNode(Node * node, std::string key, int value, bool& newValue) {
   if (node == nullptr) {
     newValue = true;
@@ -37,6 +38,7 @@ BST::Node * BST::newNode(Node * node, std::string key, int value, bool& newValue
   return node;
 }
 
+// inserts a new node into the tree if the key is not found. otherwise just updates the value
 void BST::set(std::string key, int value) {
   bool newValue = false;
   root = newNode(root, key, value, newValue);
@@ -45,6 +47,7 @@ void BST::set(std::string key, int value) {
   }
 }
 
+// finds a node in the tree by key
 BST::Node * BST::findNode(Node * node, std::string key) {
   if (node == nullptr) {
     return nullptr;
@@ -59,6 +62,7 @@ BST::Node * BST::findNode(Node * node, std::string key) {
   }
 }
 
+// gets the value of a node by the key and throws an out of range error if its not found
 int BST::at(std::string key) {
   Node * node = findNode(root, key);
   if (node == nullptr) {
@@ -68,6 +72,7 @@ int BST::at(std::string key) {
   return node->value;
 }
 
+// gets the key of a node by the index and returns an empty string if its not found
 std::string BST::getKey(int value) {
     std::vector<std::string> result;
     findKeyHelper(root, value, result);
@@ -78,6 +83,7 @@ std::string BST::getKey(int value) {
     }
 }
 
+// helper function for getKey
 void BST::findKeyHelper(Node * node, int value, std::vector<std::string>& result) {
   if (!node) return;
   findKeyHelper(node->left, value, result);

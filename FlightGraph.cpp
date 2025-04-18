@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <climits>
+#include <algorithm>
 
 #include "FlightGraph.h"
 #include "PriorityQueue.h"
@@ -12,6 +13,7 @@ void FlightGraph::addEdge(int originIndex, std::tuple<int, int, int> edge) {
   edges[originIndex].push_back(edge);
 }
 
+// gets the index by the airport code or -1 if it doesen't exist. This corresponds to the index in edges
 int FlightGraph::getAirportIndex(std::string airport) {
   try {
     return airportMap.at(airport);
@@ -20,6 +22,7 @@ int FlightGraph::getAirportIndex(std::string airport) {
   }
 }
 
+// adds airport code to the bst and returns the index in edges
 int FlightGraph::addAirport(std::string airport) {
   int index = edges.size();
   airportMap.set(airport, index);
@@ -28,6 +31,7 @@ int FlightGraph::addAirport(std::string airport) {
   return index;
 }
 
+// dijkstra's algorithm, returns the previous node, distances, and costs. See wikipedia page for how this works
 std::tuple<std::vector<int>, std::vector<int>, std::vector<int>> FlightGraph::dijkstra(int originIndex) {
   PriorityQueue pq;
 
@@ -42,14 +46,14 @@ std::tuple<std::vector<int>, std::vector<int>, std::vector<int>> FlightGraph::di
     int current = pq.extract_min();
     for (Edge edge : edges[current]) {
       int v = std::get<0>(edge);
-      int alt_distance = distances[current] + std::get<1>(edge);
-      int alt_cost = costs[current] + std::get<2>(edge);
+      int altDistance = distances[current] + std::get<1>(edge);
+      int altCost = costs[current] + std::get<2>(edge);
 
-      if (alt_distance < distances[v]) {
+      if (altDistance < distances[v]) {
         previous[v] = current;
-        distances[v] = alt_distance;
-        costs[v] = alt_cost;
-        pq.add_with_priority(v, alt_distance);
+        distances[v] = altDistance;
+        costs[v] = altCost;
+        pq.add_with_priority(v, altDistance);
       }
     }
   }
@@ -57,6 +61,7 @@ std::tuple<std::vector<int>, std::vector<int>, std::vector<int>> FlightGraph::di
   return std::make_tuple(previous, distances, costs);
 }
 
+// from the dijkstra data, turns the data into a vector containing the path, distance, and cost
 std::tuple<std::vector<std::string>, int, int> FlightGraph::extractPath(std::tuple<std::vector<int>, std::vector<int>, std::vector<int>> pathData, int destinationIndex) {
   std::vector<int> previous = std::get<0>(pathData);
   std::vector<int> distances = std::get<1>(pathData);
@@ -78,6 +83,21 @@ std::tuple<std::vector<std::string>, int, int> FlightGraph::extractPath(std::tup
   return std::make_tuple(path, distance, cost);
 }
 
+// gets the airport code by the index in edges
 std::string FlightGraph::getAirportName(int index) {
   return airportMap.getKey(index);
+}
+
+// Calculates the number of connections for each airport
+std::vector<int> FlightGraph::calculateConnections() {
+  std::vector<int> connections = std::vector<int>(edges.size(), 0);
+  for (int i = 0; i < edges.size(); i++) {
+    connections[i] += edges[i].size();
+
+    for (Edge edge : edges[i]) {
+      connections[std::get<0>(edge)]++;
+    }
+  }
+
+  return connections;
 }

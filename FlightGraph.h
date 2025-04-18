@@ -19,7 +19,9 @@ class FlightGraph {
         std::tuple<std::vector<int>, std::vector<int>, std::vector<int>> dijkstra(int);
         std::tuple<std::vector<std::string>, int, int> extractPath(std::tuple<std::vector<int>, std::vector<int>, std::vector<int>>, int);
         std::string getAirportName(int);
+        std::vector<int> calculateConnections();
 
+        FlightGraph createUndirectedGraph();
     private:
         std::vector<std::vector<Edge>> edges;
         BST airportMap;
