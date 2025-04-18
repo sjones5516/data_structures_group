@@ -101,3 +101,34 @@ std::vector<int> FlightGraph::calculateConnections() {
 
   return connections;
 }
+
+FlightGraph FlightGraph::createUndirectedGraph() {
+  FlightGraph undirectedGraph;
+  // Creates an undirected graph from the original graph. The distances are completely ignored
+  for (int i = 0; i < edges.size(); i++) {
+    for (Edge edge : edges[i]) {
+      // Check if the reverse edge exists
+      bool reverseEdgeExists = false;
+      for (Edge reverseEdge : edges[std::get<0>(edge)]) {
+        if (std::get<0>(reverseEdge) == i) {
+          reverseEdgeExists = true;
+
+          // Add the minimum cost edge
+          if (std::get<2>(edge) < std::get<2>(reverseEdge)) {
+            undirectedGraph.addEdge(i, edge);
+          } else {
+            undirectedGraph.addEdge(i, reverseEdge);
+          }
+          
+          break;
+        }
+      }
+
+      if (!reverseEdgeExists) {
+        undirectedGraph.addEdge(i, edge);
+      }
+    }
+  }
+
+  return undirectedGraph;
+}

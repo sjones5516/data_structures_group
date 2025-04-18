@@ -130,4 +130,9 @@ int main() {
   for (int i = 0; i < connections.size(); i++) {
     std::cout << graph.getAirportName(i) << "\t\t" << connections[i] << std::endl;
   }
+
+  // Task 6
+  FlightGraph undirectedGraph = graph.createUndirectedGraph();
+
+  return 0;
 }
