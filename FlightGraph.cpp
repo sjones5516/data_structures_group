@@ -132,3 +132,136 @@ FlightGraph FlightGraph::createUndirectedGraph() {
 
   return undirectedGraph;
 }
+
+//Task 7: create a function that creates the Prim's algorithm 
+std::vector<std::tuple<int,int,int>> FlightGraph::Prim(){
+    std::vector<bool>BV(edges.size(),false);//to check if the given value is already in the MST
+  
+    std::vector<int>origin(edges.size(),-1);//create a vector that will be the origin point
+  
+    std::vector<int>Min_Cost(edges.size(),450);//will go to the highest # (450) and will replace it if the next # is smaller and would continue until it gets the smallest cost
+   
+    //declare a function that would be used to make a MST
+     std::vector<std::tuple<int,int,int>>MST;
+     //declare the min cost as zero at the first index
+       Min_Cost[0] = 0;
+     //declare the priority queue that holds the value
+      PriorityQueue pq;
+
+      pq.add_with_priority(0, 0);
+  
+     while(!pq.empty()){
+       //extract the min from the priority queue
+       int p = pq.extract_min();
+       BV[p] = true;
+       
+       
+       //the for loop would check the edges that are connected to the main edge
+       for(auto& edges:edges[p]){
+         int cost = std::get<2>(edges);
+         int dest = std::get<0>(edges);
+          
+         if(!BV[dest] && cost < Min_Cost[dest]){// to sort out the smallest cost with each destination 
+           Min_Cost[dest] = cost;
+           pq.add_with_priority(dest, cost);
+           origin[p] = dest;
+         }
+         
+       }
+     }
+      int total_cost = 0;
+      for(int i = 0; i < edges.size();i++ ){
+        if(origin[i] != -1){
+          int v_p = origin[i];
+          int c_p = Min_Cost[i];//find the minimum cost and put it into c_p
+          total_cost += c_p;
+          MST.emplace_back(v_p,i,c_p); //puts the given values in the MST
+        }
+      }
+       std::cout << "The total cost is " << total_cost <<std::endl;
+       
+
+  return MST;
+
+
+}
+//Task 8 creating a MST using Kruskals' method
+std::vector<std::tuple<int,int,int>>FlightGraph::Kruskal(){
+  std::vector<std::tuple<int,int,int>>MST2;
+  std::vector<int>parent(edges.size());
+  std::vector<int>rank(edges.size());
+  
+  //this for-loop is used to sort all edges in non-decreasing order of their own weight
+    for(int i = 0;i < edges.size(); i++){
+      for(auto& edges:edges[i]){
+        int cost = std::get<2>(edges);
+        int dest = std::get<0>(edges);
+
+        if(i < dest){
+          MST2.emplace_back(dest,i,cost);
+        }
+      }
+    }
+    //create a loop that would sort the edges from lowest to highest
+    for(int i = 0; i < edges.size(); i++){
+      int in = i;
+      for(int j =i+1; j < edges.size(); j++){
+        if(std::get<2>(MST2[j]) < std::get<2>(MST2[i]) )
+          in = j;
+      }
+      
+      if(in != i){
+        std::tuple<int,int,int>temp;
+        temp = MST2[i];
+        MST2[i] = MST2[in];
+        MST2[in] = temp;
+      }
+    }
+    //create a find function that would find the parent
+    auto Find = [&](int pa){
+      //std::vector<int>parent(edges.size());
+      while(pa != parent[pa]){
+        parent[pa] = parent[parent[pa]];
+        pa = parent[pa];
+      }
+      return pa;
+    };
+    //create a unite function that would check if two roots have the same dest (then it would be a cycle)
+     auto unite = [&](int x, int y){
+       //std::vector<int>rank(edges.size()); 
+       int r1 = Find(x);
+       int r2 = Find(y);
+
+       if(r1 == r2){
+         return false;
+       }
+       else if(rank[r1] < rank[r2]){
+         parent[r1] =r2;
+       }
+       else if(rank[r1] > rank[r2]){
+         parent[r2] = r1;
+       }
+       else{
+         parent[r2] = r1 ,
+           rank[r1]++;
+       }
+       return true;
+     };
+     //create a MST2 using a for-loop
+      int t_c = 0; //variable for total_cost
+     for(auto& edges:MST2){
+       int i = std::get<1>(edges);
+       int cost = std::get<2>(edges);
+       int dest = std::get<0>(edges);
+
+       if(unite(dest,i)){
+         t_c += cost;
+         MST2.emplace_back(dest,i,cost);
+       }
+     }
+    std::cout << "The total cost is " << t_c << std::endl;
+         
+
+  return MST2;
+  
+}
